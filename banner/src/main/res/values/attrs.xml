@@ -3,6 +3,8 @@
     <declare-styleable name="BannerView">
         <!--是否自动滚动-->
         <attr name="isAutoScroll" format="boolean" />
+        <!--是否可以循环-->
+        <attr name="isCycle" format="boolean" />
         <!--自动滚动时间单位毫秒-->
         <attr name="autoScrollTime" format="integer" />
         <!--滚动间隔时间单位毫秒-->

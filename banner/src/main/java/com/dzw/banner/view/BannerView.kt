@@ -14,7 +14,8 @@ import androidx.annotation.LayoutRes
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.widget.ViewPager2
-import androidx.viewpager2.widget.ViewPager2.*
+import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
+import androidx.viewpager2.widget.ViewPager2.ORIENTATION_VERTICAL
 import com.dzw.banner.R
 import com.dzw.banner.view.listener.AdapterCustomViewListener
 import com.dzw.banner.view.listener.AdapterViewListener
@@ -22,11 +23,12 @@ import com.dzw.banner.view.listener.IBaseLifecycle
 import com.dzw.banner.view.listener.PagerChangeListener
 import java.util.*
 
+
 /**
  * @author zhangwei on 2021/3/25.
  */
 open class BannerView : FrameLayout, IBaseLifecycle {
-    private var adapterLayoutRes: Int? = null
+    private var adapterLayoutRes: Int = R.layout.review_start_banner_item_layout
     lateinit var viewPager2: ViewPager2
     private lateinit var dotLayout: LinearLayout
     private var mDots: ArrayList<ImageView> = arrayListOf()
@@ -40,6 +42,16 @@ open class BannerView : FrameLayout, IBaseLifecycle {
 
     //是否自动滚动
     var isAutoScroll: Boolean = false
+
+    //是否循环
+    var isCycle: Boolean = true
+        set(value) {
+            if (!value) {
+                isAutoScroll = false
+            }
+            mStartPosition = (if (value) 1 else 0)
+            field = value
+        }
 
     //设置自动滚动方向 0往左滚动  1往右滚动
     var autoScrollDirector = 0
@@ -67,6 +79,8 @@ open class BannerView : FrameLayout, IBaseLifecycle {
 
     var pagerChangeListener: PagerChangeListener? = null
 
+    /**轮播开始位置*/
+    var mStartPosition = 1
 
     constructor(context: Context) : this(context, null)
 
@@ -75,6 +89,7 @@ open class BannerView : FrameLayout, IBaseLifecycle {
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
         val types = context.obtainStyledAttributes(attrs, R.styleable.BannerView)
         isAutoScroll = types.getBoolean(R.styleable.BannerView_isAutoScroll, false)
+        isCycle = types.getBoolean(R.styleable.BannerView_isCycle, true)
         autoScrollTime = types.getInt(R.styleable.BannerView_autoScrollTime, 400).toLong()
         scrollOrientation = types.getInt(R.styleable.BannerView_scrollOrientation, ORIENTATION_HORIZONTAL)
         autoScrollDirector = types.getInt(R.styleable.BannerView_autoScrollDirector, 0)
@@ -166,18 +181,68 @@ open class BannerView : FrameLayout, IBaseLifecycle {
 
 
     private val listener = object : ViewPager2.OnPageChangeCallback() {
+        private var mTempPosition: Int = -1
+        private var isScrolled = false
         override fun onPageSelected(position: Int) {
             //for-each循环将所有的dot设置为dot_normal
-            val index = position % mDots.size
-            if (realSize > 1) {
-                for (imageView in mDots) {
-                    imageView.setImageResource(indicatorDotArray[0])
+            if (isScrolled) {
+                mTempPosition = position
+                val realPosition: Int = bannerAdapter?.getRealPosition(position) ?: 0
+                if (realSize > 1) {
+                    for (imageView in mDots) {
+                        imageView.setImageResource(indicatorDotArray[0])
+                    }
+                    //设置当前显示的页面的dot设置为dot_focused
+                    mDots[realPosition].setImageResource(indicatorDotArray[1])
                 }
-                //设置当前显示的页面的dot设置为dot_focused
-                mDots[index].setImageResource(indicatorDotArray[1])
+                pagerChangeListener?.onPagerChange(realPosition)
             }
-            pagerChangeListener?.onPagerChange(position)
         }
+
+        override fun onPageScrollStateChanged(state: Int) {
+            //手势滑动中,代码执行滑动中
+            if (state == ViewPager2.SCROLL_STATE_DRAGGING || state == ViewPager2.SCROLL_STATE_SETTLING) {
+                isScrolled = true
+            } else if (state == ViewPager2.SCROLL_STATE_IDLE) {
+                //滑动闲置或滑动结束
+                isScrolled = false
+                if (mTempPosition != -1 && isCycle) {
+                    if (mTempPosition == 0) {
+                        setCurrentItem(realSize, false)
+                    } else if (mTempPosition == getItemCount() - 1) {
+                        setCurrentItem(1, false)
+                    }
+                }
+            }
+        }
+    }
+
+
+    open fun getCurrentItem(): Int {
+        return viewPager2.currentItem
+    }
+
+    open fun getItemCount(): Int {
+        return bannerAdapter?.itemCount ?: 0
+    }
+
+    /**
+     * 跳转到指定位置（最好在设置了数据后在调用，不然没有意义）
+     * @param position
+     * @return
+     */
+    open fun setCurrentItem(position: Int) {
+        return setCurrentItem(position, true)
+    }
+
+    /**
+     * 跳转到指定位置（最好在设置了数据后在调用，不然没有意义）
+     * @param position
+     * @param smoothScroll
+     * @return
+     */
+    open fun setCurrentItem(position: Int, smoothScroll: Boolean) {
+        viewPager2.setCurrentItem(position, smoothScroll)
     }
 
 
@@ -207,11 +272,6 @@ open class BannerView : FrameLayout, IBaseLifecycle {
         viewPager2.unregisterOnPageChangeCallback(listener)
     }
 
-    /*自定义page页面*/
-    fun setAdapterView(@LayoutRes adapterLayoutRes: Int) {
-        this.adapterLayoutRes = adapterLayoutRes
-    }
-
     /**绑定view的生命周期*/
     fun addLifecycleObserver(owner: FragmentActivity) {
         owner.lifecycle.addObserver(this)
@@ -224,55 +284,53 @@ open class BannerView : FrameLayout, IBaseLifecycle {
 
 
     /**
-     *设置图片数据源和绑定list生命周期**/
+     *设置图片数据源**/
     fun <T : Any> setData(list: MutableList<T>, adapterListener: AdapterViewListener<T>?) {
-        //绑定生命周期
-        this.realSize = list.size
-        createDots()
-        if (bannerAdapter == null) {
-            bannerAdapter = BannerAdapter(this, list).apply {
-                loadImage = { data, view, position ->
-                    adapterListener?.loadImage(data, view as ImageView, position)
-                    view.setOnClickListener {
-                        adapterListener?.onItemClick(data, position)
-                    }
-                }
-                viewPager2.adapter = this
-                viewPager2.registerOnPageChangeCallback(listener)
+        initAdapter(list) { data, view, position ->
+            adapterListener?.loadImage(data, view as ImageView, position)
+            view.setOnClickListener {
+                adapterListener?.onItemClick(data, position)
             }
-        }
-        if (realSize > 1 && isAutoScroll) {
-            viewPager2.setCurrentItem(realSize * 100000, false)
-            startScrolling()
         }
     }
 
 
     /**
-     *设置图片数据源和绑定list生命周期**/
-    fun <T : Any> setData(list: MutableList<T>, adapterListener: AdapterCustomViewListener<T>?) {
-        //绑定生命周期
-        if (adapterLayoutRes == null) return
+     *设置图片数据源
+     *自定义page页面
+     * @param adapterCustomLayoutRes 自定义显示页面
+     * **/
+    fun <T : Any> setData(list: MutableList<T>, adapterCustomLayoutRes: Int? = R.layout.review_start_banner_item_layout, adapterListener: AdapterCustomViewListener<T>?) {
+        if (adapterCustomLayoutRes == null) return
+        adapterLayoutRes = adapterCustomLayoutRes
+        initAdapter(list) { data, view, position ->
+            adapterListener?.loadImage(data, view, position)
+            view.setOnClickListener {
+                adapterListener?.onItemClick(data, position)
+            }
+        }
+    }
+
+
+    private fun <T : Any> initAdapter(list: MutableList<T>, loadImageListener: (T, View, Int) -> Unit) {
         this.realSize = list.size
         createDots()
         if (bannerAdapter == null) {
-            bannerAdapter = BannerAdapter(this, list, adapterLayoutRes!!).apply {
-                loadImage = { data, view, position ->
-                    adapterListener?.loadImage(data, view, position)
-                    view.setOnClickListener {
-                        adapterListener?.onItemClick(data, position)
-                    }
-                }
+            bannerAdapter = BannerAdapter(list, adapterLayoutRes).apply {
+                loadImage = loadImageListener
                 viewPager2.adapter = this
                 viewPager2.registerOnPageChangeCallback(listener)
             }
         }
-        if (realSize > 1 && isAutoScroll) {
-            viewPager2.setCurrentItem(realSize * 100000, false)
-            startScrolling()
+        if (list.size == 1) {
+            isCycle = false
         }
+        if (!isCycle) {
+            bannerAdapter?.cycleSize = 0
+        }
+        viewPager2.setCurrentItem(mStartPosition, false)
+        startScrolling()
     }
-
 
     /**启动滚动*/
     private fun startScrolling() {

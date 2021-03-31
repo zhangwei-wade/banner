@@ -24,7 +24,7 @@ class AutoScrollUtils(private val bannerView: BannerView) {
 
     //移动viewpager2
     private fun startAnimator(viewPager2: ViewPager2) {
-        val sleepTime = 10
+        val sleepTime = 6
         val size = bannerView.autoScrollTime / sleepTime
         val rv = viewPager2.getChildAt(0)
         var width = if (bannerView.scrollOrientation == ViewPager2.ORIENTATION_HORIZONTAL) {

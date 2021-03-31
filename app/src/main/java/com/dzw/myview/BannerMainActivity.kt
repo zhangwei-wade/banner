@@ -52,9 +52,8 @@ class BannerMainActivity : AppCompatActivity() {
 
         binding.bannerView2.apply {
 //            indicatorDotArray = arrayOf(R.drawable.dot_normal, R.drawable.dot_focused)
-            setAdapterView(R.layout.banner_item_layout)
             addLifecycleObserver(this@BannerMainActivity)
-            setData(list, object : AdapterCustomViewListener<Int> {
+            setData(list,R.layout.banner_item_layout, object : AdapterCustomViewListener<Int> {
                 override fun loadImage(data: Int, view: View, position: Int) {
                     val imageView = view.findViewById<ImageView>(R.id.banner_iv)
                     if (position == 0) {
