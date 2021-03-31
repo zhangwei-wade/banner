@@ -1,0 +1,65 @@
+plugins {
+    id 'com.android.library'
+    id 'kotlin-android'
+}
+
+// 打包时间
+static def buildTime() {
+    return new Date().format("yyyyMMdd", TimeZone.getTimeZone("GMT+08:00"))
+}
+
+android {
+    compileSdkVersion 30
+    buildToolsVersion "29.0.3"
+
+    defaultConfig {
+        minSdkVersion 21
+        targetSdkVersion 30
+        versionCode 1
+        versionName "1.0.0"
+
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+    libraryVariants.all { variant ->
+//        if (variant.name.equalsIgnoreCase("release")) {
+        variant.outputs.all { output ->
+            def f = output.outputFileName
+            def buildType = variant.buildType.name
+            def versionName = defaultConfig.versionName
+            def xmlFile = project.file("${project.getProjectDir()}/src/main/res/values/strings.xml")
+            def rootManifest = new XmlParser().parse(xmlFile)
+            def productName
+            for (data in rootManifest) {
+                def name = data.attributes().get("name")
+                if ("app_name" == name) {
+                    productName = data.text()
+                    break
+                }
+            }
+            if (f != null && f.endsWith('.aar')) {
+                outputFileName = "${productName}_v${versionName}_${buildType}.aar"
+            }
+        }
+//        }
+    }
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation 'androidx.core:core-ktx:1.3.2'
+    implementation 'androidx.viewpager2:viewpager2:1.0.0'
+    implementation 'androidx.cardview:cardview:1.0.0'
+}

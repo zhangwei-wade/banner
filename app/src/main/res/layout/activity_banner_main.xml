@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#777575"
+    tools:context="com.dzw.myview.BannerMainActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipChildren="false"
+        android:orientation="vertical">
+
+        <com.dzw.banner.view.BannerView
+            android:id="@+id/banner_view"
+            android:layout_width="300dp"
+            android:layout_height="150dp"
+            app:autoScrollDirector="right"
+            app:autoScrollTime="6000"
+            app:cardCornerRadius="8dp"
+            app:fingerSwipeEnable="false"
+            app:indicatorPadding="5dp"
+            app:isAutoScroll="true"
+            app:scrollIntervalTime="3500"
+            app:scrollOrientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="禁止手指滑动"
+                android:textColor="#FF0000" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="向下滚动"
+                android:textColor="@color/black" />
+
+            <com.dzw.banner.view.IndicatorLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|center_horizontal"
+                android:layout_marginBottom="-50dp" />
+        </com.dzw.banner.view.BannerView>
+
+
+        <com.dzw.banner.view.BannerView
+            android:id="@+id/banner_view2"
+            android:layout_width="300dp"
+            android:layout_height="150dp"
+            android:layout_marginTop="60dp"
+            app:autoScrollDirector="right"
+            app:autoScrollTime="3000"
+            app:fingerSwipeEnable="true"
+            app:indicatorVisibility="visible"
+            app:isAutoScroll="true"
+            app:scrollIntervalTime="2000"
+            app:scrollOrientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="启用手指滑动"
+                android:textColor="#02FA0B" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="向右滚动"
+                android:textColor="@color/black" />
+
+            <com.dzw.banner.view.IndicatorLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|center_horizontal"
+                android:layout_marginBottom="-20dp" />
+        </com.dzw.banner.view.BannerView>
+
+
+        <com.dzw.banner.view.BannerView
+            android:id="@+id/banner_view1"
+            android:layout_width="300dp"
+            android:layout_height="150dp"
+            android:layout_marginTop="60dp"
+            app:autoScrollDirector="left"
+            app:autoScrollTime="300"
+            app:fingerSwipeEnable="true"
+            app:indicatorPadding="5dp"
+            app:indicatorVisibility="gone"
+            app:isAutoScroll="true"
+            app:scrollIntervalTime="1000"
+            app:scrollOrientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="启用手指滑动"
+                android:textColor="#02FA0B" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="向上滚动"
+                android:textColor="@color/black"
+                android:visibility="visible" />
+        </com.dzw.banner.view.BannerView>
+
+        <com.dzw.banner.view.BannerView
+            android:id="@+id/banner_view3"
+            android:layout_width="300dp"
+            android:layout_height="150dp"
+            app:autoScrollDirector="left"
+            app:autoScrollTime="9000"
+            app:fingerSwipeEnable="false"
+            app:indicatorPadding="5dp"
+            app:indicatorVisibility="invisible"
+            app:isAutoScroll="true"
+            app:scrollIntervalTime="2000"
+            app:scrollOrientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="禁止手指滑动"
+                android:textColor="#FF0000" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="向左滚动"
+                android:textColor="@color/black" />
+        </com.dzw.banner.view.BannerView>
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

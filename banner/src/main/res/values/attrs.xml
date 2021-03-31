@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="BannerView">
+        <!--是否自动滚动-->
+        <attr name="isAutoScroll" format="boolean" />
+        <!--自动滚动时间单位毫秒-->
+        <attr name="autoScrollTime" format="integer" />
+        <!--滚动间隔时间单位毫秒-->
+        <attr name="scrollIntervalTime" format="integer" />
+        <!--滚动间隔时间单位毫秒-->
+        <attr name="scrollOrientation">
+            <enum name="horizontal" value="0" />
+            <!-- Defines a vertical widget. -->
+            <enum name="vertical" value="1" />
+        </attr>
+        <!--设置自动滚动方向   0往左滚动  1往右滚动-->
+        <attr name="autoScrollDirector">
+            <enum name="left" value="0" />
+            <!-- Defines a vertical widget. -->
+            <enum name="right" value="1" />
+        </attr>
+        <!--禁止手指滑动-->
+        <attr name="fingerSwipeEnable" format="boolean" />
+        <!--设置指示器的间距单位dp-->
+        <attr name="indicatorPadding" format="dimension" />
+        <!-- 是否隐藏指示器  -->
+        <attr name="indicatorVisibility">
+            <!-- Visible on screen; the default value. -->
+            <enum name="visible" value="0" />
+            <!-- Not displayed, but taken into account during layout (space is left for it). -->
+            <enum name="invisible" value="4" />
+            <!-- Completely hidden, as if the view had not been added. -->
+            <enum name="gone" value="8" />
+        </attr>
+    </declare-styleable>
+</resources>
